@@ -1,4 +1,4 @@
-# PhaserJS v3 and Parcel v2 Template
+# PhaserJS v3 Parcel v2 Template
 
 ![Version](https://img.shields.io/badge/version-1.0.0-brightgreen)
 
