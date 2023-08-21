@@ -9,14 +9,14 @@ A phaserjs template made with phaserjs v3 and parcel v2. This takes the first tu
 ## Note
 The template's demo code is the index.html and is there for testing purposes.  
 
-## Parcel
-Parcel is usefulfor managing and serving assets efficiently.  
-
 ## Installation
 yarn install
 
 ## Run
 npm run start
+
+## Parcel
+Parcel(https://parceljs.org/) web application bundler that simplifies the process of building and bundling assets for web projects. It is useful for managing and serving assets efficiently.  
 
 ## Suggested Structure
 ├── .parcelrc
