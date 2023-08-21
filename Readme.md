@@ -18,25 +18,5 @@ npm run start
 ## Parcel
 Parcel(https://parceljs.org/) web application bundler that simplifies the process of building and bundling assets for web projects. It is useful for managing and serving assets efficiently.  
 
-## Suggested Structure
-├── .parcelrc
-├── .gitignore
-├── package.json
-├── src
-│   ├── app.js
-│   ├── assets
-│   │   ├── audio
-│   │   ├── fonts
-│   │   └── images
-│   │       └── example.png
-│   ├── configs
-│   │   ├── constants.js
-│   │   └── phaserConfig.js
-│   ├── index.html
-│   ├── scenes
-│   │   └── StartScene.js
-│   └── styles.css
-└── yarn.lock
-
 ## Contributing
 If you encounter any issues or have suggestions for improvements, please create an issue or pull request. I welcome contributions!
