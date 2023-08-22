@@ -1,20 +1,20 @@
-var config = {
+import { GAME_HEIGHT, GAME_WIDTH } from "./constants";
+import PreloadScene from '../scenes/PreloadScene';
+import StartScene from '../scenes/StartScene';
+
+var startSceneConfig = {
     type: Phaser.AUTO,
-    width: 800,
-    height: 600,
+    width: GAME_WIDTH,
+    height: GAME_HEIGHT,
+    scene: [PreloadScene,StartScene],
     physics: {
         default: 'arcade',
         arcade: {
             gravity: { y: 300 },
-            debug: false
+            debug: true
         }
-    },
-    scene: {
-        preload: preload,
-        create: create,
-        update: update
     }
 };
 
 
-export default config
+export default startSceneConfig
