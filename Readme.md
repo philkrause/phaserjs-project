@@ -6,9 +6,6 @@
 ## About
 A phaserjs template made with phaserjs v3 and parcel v2. This takes the first tutorial from the phaserjs website and combines it with a suggestive structure for your game. This will run a basic game in your browser at localhost:1234
 
-## Note
-The template's demo code is the index.html and is there for testing purposes.  
-
 ## Installation
 yarn install
 
