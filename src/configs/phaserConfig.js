@@ -1,17 +1,17 @@
 import { GAME_HEIGHT, GAME_WIDTH } from "./constants";
-import PreloadScene from '../scenes/PreloadScene';
-import StartScene from '../scenes/StartScene';
+import TitleScene from '../scenes/TitleScene';
+import GameScene from '../scenes/GameScene';
 
 var startSceneConfig = {
     type: Phaser.AUTO,
     width: GAME_WIDTH,
     height: GAME_HEIGHT,
-    scene: [PreloadScene,StartScene],
+    scene: [TitleScene,GameScene],
     physics: {
         default: 'arcade',
         arcade: {
             gravity: { y: 300 },
-            debug: true
+            debug: false
         }
     }
 };

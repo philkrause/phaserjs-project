@@ -1,8 +1,10 @@
 // src/app.js
 import 'phaser'; 
+import phaserConfig from './configs/phaserConfig';
 
-import config from './configs/phaserConfig';
 
-const game = new Phaser.Game(config);
-game.scene.start('PreloadSceneKey');
+const game = new Phaser.Game(phaserConfig);
+
+game.scene.start('TitleSceneKey');
+
 
