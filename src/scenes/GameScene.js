@@ -27,7 +27,12 @@ class GameScene extends Phaser.Scene {
         this.load.image('ground', '../assets/images/platform.png');
         this.load.image('star', '../assets/images/star.png');
         this.load.image('bombs', '../assets/images/bomb.png');
-        this.load.spritesheet('dude','../assets/images/dude.png', { frameWidth: 32, frameHeight: 48 }); 
+        this.load.spritesheet('dude','../assets/images/dude.png', { frameWidth: 32, frameHeight: 48 });
+        this.load.spritesheet('cat_idle','../assets/images/cat_idle.png', { frameWidth: 50, frameHeight: 40 }); 
+        this.load.spritesheet('cat_walk','../assets/images/cat_walk.png', { frameWidth: 50, frameHeight: 40 }); 
+        this.load.spritesheet('cat_jump','../assets/images/cat_jump.png', { frameWidth: 50, frameHeight: 50 }); 
+
+ 
         this.gameOver = false;
 
     }
@@ -49,32 +54,31 @@ class GameScene extends Phaser.Scene {
 
         
         //player
-        this.player = this.physics.add.sprite(100, 450, 'dude');    
+        this.player = this.physics.add.sprite(100, 450, 'cat_idle');    
         this.player.setBounce(0.2);
         this.player.setCollideWorldBounds(true);
 
         //player movement
         this.anims.create({
             key:'left',
-            frames:this.anims.generateFrameNumbers('dude', { start: 0, end: 3 }),
+            frames:this.anims.generateFrameNumbers('cat_walk', { start: 0, end: 3 }),
             frameRate: 10,
             repeat: -1
         });
     
         this.anims.create({
-            key: 'turn',
-            frames: [ { key: 'dude', frame: 4 } ],
+            key: 'idle',
+            frames: this.anims.generateFrameNumbers('cat_idle', {start: 0, end: 2  }),
             frameRate: 20
         });
     
         this.anims.create({
             key: 'right',
-            frames: this.anims.generateFrameNumbers('dude', { start: 5, end: 8 }),
+            frames: this.anims.generateFrameNumbers('cat_walk', { start: 0, end: 3 }),
             frameRate: 10,
             repeat: -1
         });
     
-
         //create stars
         this.stars = this.physics.add.group({
             key: 'star',
@@ -88,10 +92,6 @@ class GameScene extends Phaser.Scene {
         //score
         this.scoreText = this.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#000' });
         
-        //star movement
-        this.stars.children.iterate(function (child) {
-            child.setBounceY(Phaser.Math.FloatBetween(0.4, 0.8));
-        });
 
         //bombs
         this.bombs = this.physics.add.group()
@@ -107,26 +107,29 @@ class GameScene extends Phaser.Scene {
 
         //death
         this.physics.add.collider(this.player, this.bombs, playAgain, hitBomb, this);
+
+        //star movement
+        this.stars.children.iterate(function (child) {
+            child.setBounceY(Phaser.Math.FloatBetween(0.4, 0.8));
+        });
         
         //collecting stars
-        function collectStar (player, star)
+        function collectStar (player,star)
         {
             star.disableBody(true, true);
             this.score += 10;
             this.scoreText.setText('Score: ' + this.score);
-            
-            createBomb(this.player, this.bombs)
-            
+                        
     
             //if all stars collected
-            if (this.stars.countActive(true) === 0)
-            {
-                    this.stars.children.iterate(function (child) {
-                    child.enableBody(true, child.x, 0, true, true);
-                });
+            // if (this.stars.countActive(true) === 0)
+            // {
+            //         this.stars.children.iterate(function (child) {
+            //         child.enableBody(true, child.x, 0, true, true);
+            //     });
 
-                createBomb()
-            }
+            //     createBomb()
+            // }
         } 
 
         //bomb
@@ -151,7 +154,7 @@ class GameScene extends Phaser.Scene {
         //play again button
         function playAgain() 
         {
-            this.playAgainButton = this.add.text(this.gameWidth / 2, this.gameHeight / 2, `GAME OVER!\nHIGH SCORE: ${this.score}\nCLICK HERE TO PLAY AGAIN`, { fontSize: '25px',fill: '0xff0000' });
+            this.playAgainButton = this.add.text(this.gameWidth * .5, this.gameHeight * .5, `GAME OVER!\nHIGH SCORE: ${this.score}\nCLICK HERE TO PLAY AGAIN`, { fontSize: '25px',fill: '0xff0000' });
             this.playAgainButton.setInteractive().on('pointerdown', ()=> {
                 this.scene.start('TitleSceneKey');
             })
@@ -171,13 +174,13 @@ class GameScene extends Phaser.Scene {
         //live movement
         if (this.cursors.left.isDown)
         {
-            this.player.setVelocityX(-160);
+            this.player.setVelocityX(-120);
 
             this.player.anims.play('left', true);
         }
         else if (this.cursors.right.isDown)
         {
-            this.player.setVelocityX(160);
+            this.player.setVelocityX(120);
 
             this.player.anims.play('right', true);
         }
@@ -185,7 +188,7 @@ class GameScene extends Phaser.Scene {
         {
             this.player.setVelocityX(0);
 
-            this.player.anims.play('turn');
+            this.player.anims.play('idle');
         }
 
         if (this.cursors.up.isDown && this.player.body.touching.down)

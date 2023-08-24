@@ -42,14 +42,22 @@ class TitleScene extends Scene {
         //title image
         this.titleImage = this.add.image(this.gameWidth * .5,this.gameHeight * .5,'title')
             .setDisplaySize(this.titleW,this.titleH)
-                 
-        //this.rotateTitle()
 
+            this.tween = this.tweens.add({
+
+                targets: [this.titleImage],
+                duration: 3000,
+                scaleX:{from:0, to:1.5},
+                //loop: -1,
+                ease: 'Power1',
+                onComplete: _=> console.log("Title Done")
+        
+            });   
         //cursor image
 		this.handCursor = this.add.image(0, 0, 'cursor')
 
         // Play button
-        const playButton = this.add.image(width * 0.5, height * 0.6, 'panel').setDisplaySize(150, 50);
+        const playButton = this.add.image(width * 0.5, height * 0.8, 'panel').setDisplaySize(150, 50);
         this.add.text(playButton.x, playButton.y, 'Play').setOrigin(0.5)
 
 	    // Settings button
@@ -68,6 +76,7 @@ class TitleScene extends Scene {
         //event listeners for selecting 
         playButton.on('selected', () => {
             console.log('play')
+            this.buttonArray = []
             this.scene.start('GameSceneKey')
         })
     
@@ -94,8 +103,6 @@ class TitleScene extends Scene {
     //tinting the button
 	selectButton(index)
 	{   
-
-        console.log(`Highlighted Index from SelectButton: ${index}`)
         const currentButton = this.buttonArray[this.selectedButtonIndex]
 
         // set the current selected button to a white tint
@@ -134,11 +141,11 @@ class TitleScene extends Scene {
 
     update() {
 
+        //key inputs
         const upJustPressed = Phaser.Input.Keyboard.JustDown(this.cursors.up)
 		const downJustPressed = Phaser.Input.Keyboard.JustDown(this.cursors.down)
-		const spaceJustPressed = Phaser.Input.Keyboard.JustDown(this.cursors.space)
+		const spaceJustPressed = Phaser.Input.Keyboard.JustDown(this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ENTER))
 
- 
         if (this.titleW > this.gameWidth) {this.titleW = this.gameWidth}
         if (this.titleH > this.gameHeight) {this.titleH = this.gameHeight}
 
