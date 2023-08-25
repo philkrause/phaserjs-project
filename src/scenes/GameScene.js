@@ -44,17 +44,18 @@ class GameScene extends Phaser.Scene {
         this.bomb = this.physics.add.group()
 
         //camera---------------------
-        this.cameras.main.startFollow(this.player)
-        .setBounds(0, 0, 1200, 200)
-        .setName('main')
+        // this.cameras.main.startFollow(this.player)
+        // .setBounds(0, 0, 1200, 200)
+        // .setName('main')
 
         //ground
         this.platforms = this.physics.add.staticGroup();
         this.platforms.create(400, 568, 'ground').setScale(4).refreshBody();
+        this.platforms.create(400,400,'ground').setScale(.5)
         
         //player
         this.player.setBounce(0.2);
-        //this.player.setCollideWorldBounds(true);
+        this.player.setCollideWorldBounds(true);
 
         //player movement
         this.anims.create({
@@ -91,14 +92,18 @@ class GameScene extends Phaser.Scene {
         //stars---------------------
         this.stars = this.physics.add.group({
             key: 'star',
-            repeat: 20,
-            setXY: { x: 100, y: 0, stepX: 50 }
+            repeat: 500,
+            setXY: { x: 50, y: 0, stepX: 2 }
         });
-        //star random bounce
+
+        //star animations
         this.stars.children.iterate(function (child) {
             child.setBounceY(Phaser.Math.FloatBetween(0.4, 1.0));
-        });
-        
+            child.setCollideWorldBounds(true)
+            child.setVelocity(Phaser.Math.Between(-200, 200), 20);
+
+        }, this);
+
         const collectStar = (player, star) =>
         {   
             star.disableBody(true, true);

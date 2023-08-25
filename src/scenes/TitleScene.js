@@ -36,33 +36,24 @@ class TitleScene extends Scene {
 
         //title image
         this.titleImage = this.add.image(width*.5,height*.5,'title').setDisplaySize(width,height)
-            //animate
-            // this.tween = this.tweens.add({
-            //     targets: [this.titleImage],
-            //     duration: 3000,
-            //     scaleY:{from:0, to:1},
-            //     loop: -1,
-            //     ease: 'Power1',
-            //     onComplete: _=> console.log("Title Screen Created")
-        
-            // });   
+
         //cursor image
 		this.handCursor = this.add.image(0, 0, 'cursor')
 
         // Play button
         const playButton = this.add.image(width * 0.5, height * 0.8, 'panel').setDisplaySize(150, 50);
-        this.add.text(playButton.x, playButton.y, 'Play').setOrigin(0.5)
+        const playText = this.add.text(playButton.x, playButton.y, 'Play', {font: '32px Press Start 2P' }).setOrigin(0.5)
 
-	    // Settings button
+	    // About button
 	    const aboutButton = this.add.image(playButton.x, playButton.y + playButton.displayHeight + 10, 'panel').setDisplaySize(150, 50);
-        this.add.text(playButton.x, playButton.y + playButton.displayHeight + 10, 'About', {font: 'Press Start 2P' }).setOrigin(0.5);
+        const aboutText = this.add.text(playButton.x, playButton.y + playButton.displayHeight + 10, 'About', {font: '32px Press Start 2P' }).setOrigin(0.5);
 
         //add buttons the allButtons
         this.allButtons.push(playButton,aboutButton);
 
         //second camera for buttons 
         const UICam = this.cameras.add(0, 0, width, height);
-        this.cameras.main.ignore[playButton,aboutButton,this.handCursor];
+        this.cameras.main.ignore([this.allButtons, this.handCursor,playText,aboutText]);
         UICam.ignore(this.titleImage);
 
         // Initialize the selected button index
@@ -128,8 +119,10 @@ class TitleScene extends Scene {
 	}
 
     update() {
-        this.cameras.main.setZoom(Math.abs(Math.sin(this.cameras.main.rotation)) * 0.5 + 1);
+
+        //title Screen Camera
         this.cameras.main.rotation += 0.01;
+        this.cameras.main.setZoom(Math.abs(Math.sin(this.cameras.main.rotation)) * 0.5 + 1);
         //key inputs
         const upJustPressed = Phaser.Input.Keyboard.JustDown(this.cursors.up)
 		const downJustPressed = Phaser.Input.Keyboard.JustDown(this.cursors.down)
