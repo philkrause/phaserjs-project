@@ -1,20 +1,16 @@
 import { Scene } from 'phaser';
-import * as Constants from '../configs/constants';
+import * as Config from '../config/config';
 
 class TitleScene extends Scene {
     constructor() {
         super({ key: 'TitleSceneKey' });
 
-        this.gameWidth = Constants.GAME_WIDTH;
-        this.gameHeight = Constants.GAME_HEIGHT;
         this.startGameButton;
         this.cursors;
-        this.buttonArray = [];
+        this.allButtons = [];
         this.selectedButtonIndex = 0;
         this.buttonSelect;
         this.handCursor;
-        this.titleH = 800;
-        this.titleW = 600;
         this.titleImage;
         this.titleD = 0;
     }
@@ -24,9 +20,10 @@ class TitleScene extends Scene {
         this.cursors = this.input.keyboard.createCursorKeys()
     }
 
-    preload() {
+    preload() 
+    {
         console.log("Preload Created");
-        this.load.image('title', '../assets/images/titlePixel.png');
+        this.load.image('title', '../assets/images/sparkle_pixel.png');
         this.load.image('panel', '../assets/images/glassPanel.png');
         this.load.image('cursor', '../assets/images/cursor_hand.png');
     }
@@ -36,23 +33,19 @@ class TitleScene extends Scene {
         const width = this.scale.width;
         const height = this.scale.height;
 
-        //create cursor client for key input
-        this.cursors = this.input.keyboard.createCursorKeys();
 
         //title image
-        this.titleImage = this.add.image(this.gameWidth * .5,this.gameHeight * .5,'title')
-            .setDisplaySize(this.titleW,this.titleH)
-
-            this.tween = this.tweens.add({
-
-                targets: [this.titleImage],
-                duration: 3000,
-                scaleX:{from:0, to:1.5},
-                //loop: -1,
-                ease: 'Power1',
-                onComplete: _=> console.log("Title Done")
+        this.titleImage = this.add.image(width*.5,height*.5,'title').setDisplaySize(width,height)
+            //animate
+            // this.tween = this.tweens.add({
+            //     targets: [this.titleImage],
+            //     duration: 3000,
+            //     scaleY:{from:0, to:1},
+            //     loop: -1,
+            //     ease: 'Power1',
+            //     onComplete: _=> console.log("Title Screen Created")
         
-            });   
+            // });   
         //cursor image
 		this.handCursor = this.add.image(0, 0, 'cursor')
 
@@ -62,12 +55,15 @@ class TitleScene extends Scene {
 
 	    // Settings button
 	    const aboutButton = this.add.image(playButton.x, playButton.y + playButton.displayHeight + 10, 'panel').setDisplaySize(150, 50);
-        this.add.text(playButton.x, playButton.y + playButton.displayHeight + 10, 'About').setOrigin(0.5);
+        this.add.text(playButton.x, playButton.y + playButton.displayHeight + 10, 'About', {font: 'Press Start 2P' }).setOrigin(0.5);
 
-        //add buttons the buttonArray
-        this.buttonArray.push(playButton);
-        this.buttonArray.push(aboutButton);
+        //add buttons the allButtons
+        this.allButtons.push(playButton,aboutButton);
 
+        //second camera for buttons 
+        const UICam = this.cameras.add(0, 0, width, height);
+        this.cameras.main.ignore[playButton,aboutButton,this.handCursor];
+        UICam.ignore(this.titleImage);
 
         // Initialize the selected button index
         this.selectButtonIndex = 0
@@ -76,10 +72,9 @@ class TitleScene extends Scene {
         //event listeners for selecting 
         playButton.on('selected', () => {
             console.log('play')
-            this.buttonArray = []
+            this.allButtons = []
             this.scene.start('GameSceneKey')
         })
-    
 
         aboutButton.on('selected', () => {
             console.log('about')
@@ -92,24 +87,17 @@ class TitleScene extends Scene {
         });
 
     }
-    
-    rotateTitle ()
-    {
-        console.log("Calling rotateTitle()");
-        console.log("this.titleImage:", this.titleImage);
-
-    }
 
     //tinting the button
 	selectButton(index)
 	{   
-        const currentButton = this.buttonArray[this.selectedButtonIndex]
+        const currentButton = this.allButtons[this.selectedButtonIndex]
 
         // set the current selected button to a white tint
         currentButton.setTint(0xffffff)
     
-        const button = this.buttonArray[index]
-    
+        const button = this.allButtons[index]
+
         // set the newly selected button to a green tint
         button.setTint(0x66ff7f)
     
@@ -125,8 +113,8 @@ class TitleScene extends Scene {
     selectNextButton(change = 1)
     {
         let index = this.selectedButtonIndex + change
-        if (index >= this.buttonArray.length){index = 0}
-        else if (index < 0) { index = this.buttonArray.length - 1 }
+        if (index >= this.allButtons.length){index = 0}
+        else if (index < 0) { index = this.allButtons.length - 1 }
 
         this.selectButton(index)
     }
@@ -134,21 +122,18 @@ class TitleScene extends Scene {
     //create an event listener on the button called selected
 	confirmSelection()
 	{
-		const button = this.buttonArray[this.selectedButtonIndex]
+		const button = this.allButtons[this.selectedButtonIndex]
         button.emit('selected')
 
 	}
 
     update() {
-
+        this.cameras.main.setZoom(Math.abs(Math.sin(this.cameras.main.rotation)) * 0.5 + 1);
+        this.cameras.main.rotation += 0.01;
         //key inputs
         const upJustPressed = Phaser.Input.Keyboard.JustDown(this.cursors.up)
 		const downJustPressed = Phaser.Input.Keyboard.JustDown(this.cursors.down)
 		const spaceJustPressed = Phaser.Input.Keyboard.JustDown(this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ENTER))
-
-        if (this.titleW > this.gameWidth) {this.titleW = this.gameWidth}
-        if (this.titleH > this.gameHeight) {this.titleH = this.gameHeight}
-
     
         if (upJustPressed)
 		{
