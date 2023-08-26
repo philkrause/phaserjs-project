@@ -1,4 +1,4 @@
-import { GAME_HEIGHT, GAME_WIDTH, DEBUG_MODE } from "./constants";
+import { GAME_HEIGHT, GAME_WIDTH, DEBUG_MODE, GRAVITY } from "./constants";
 import TitleScene from '../scenes/TitleScene';
 import GameScene from '../scenes/GameScene';
 
@@ -10,7 +10,7 @@ var startSceneConfig = {
     physics: {
         default: 'arcade',
         arcade: {
-            gravity: { y: 300 },
+            gravity: { y: GRAVITY },
             debug: DEBUG_MODE
         }
     }
