@@ -17,6 +17,8 @@ class GameScene extends Phaser.Scene {
         this.playAgainButton;
         this.playerJumpV = Config.PLAYER_JUMPV;
         this.playerSpeed = Config.PLAYER_SPEED;
+        this.gameWidth = Config.GAME_WIDTH;
+        this.gameHeight = Config.GAME_HEIGHT
     }
 
     preload() 
@@ -27,37 +29,31 @@ class GameScene extends Phaser.Scene {
         this.load.image('bomb', '../assets/images/bomb.png');
         this.load.spritesheet('cat_idle','../assets/images/cat_idle.png', { frameWidth: 50, frameHeight: 40 }); 
         this.load.spritesheet('cat_walk','../assets/images/cat_walk.png', { frameWidth: 50, frameHeight: 40 }); 
-        this.load.spritesheet('cat_jump','../assets/images/cat_jump.png', { frameWidth: 50, frameHeight: 50 }); 
+        this.load.spritesheet('cat_jump','../assets/images/cat_jump.png', { frameWidth: 50, frameHeight: 40 }); 
 
         this.gameOver = false;
     }
 
     create() 
     {   
-
         //create cursor client for key input
         this.cursors = this.input.keyboard.createCursorKeys();
 
         //assets
-        this.add.image(400, 300, 'background');
-        this.player = this.physics.add.sprite(100, 450, 'cat_idle');
-        this.bomb = this.physics.add.group()
+        this.add.image(this.gameWidth, this.gameHeight, 'background');
 
-        //camera---------------------
-        // this.cameras.main.startFollow(this.player)
-        // .setBounds(0, 0, 1200, 200)
-        // .setName('main')
-
-        //ground
+        //ground-----------------------
         this.platforms = this.physics.add.staticGroup();
         this.platforms.create(400, 568, 'ground').setScale(4).refreshBody();
-        this.platforms.create(400,400,'ground').setScale(.5)
+        this.platforms.create(400,300,'ground')
         
-        //player
+        //player-----------------------
+        this.player = this.physics.add.sprite(100, 300, 'cat_idle');
+
         this.player.setBounce(0.2);
         this.player.setCollideWorldBounds(true);
 
-        //player movement
+        //player animations
         this.anims.create({
             key:'left',
             frames:this.anims.generateFrameNumbers('cat_walk', { start: 0, end: 3 }),
@@ -83,58 +79,68 @@ class GameScene extends Phaser.Scene {
             key: 'jump',
             frames: this.anims.generateFrameNumbers('cat_jump', { start: 0, end: 10 }),
             frameRate: 10,
-            repeat: -1
+            repeat: -1,
+            onComplete: () => console.log("Jump animation complete")
         });
 
         //score
         this.scoreText = this.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#000' });
         
-        //stars---------------------
+        //stars---------------------------------
         this.stars = this.physics.add.group({
             key: 'star',
-            repeat: 500,
-            setXY: { x: 50, y: 0, stepX: 2 }
+            repeat: 50,
+            setFlipY: true,
+            setXY: { x: 400, y: 0, stepX: 1 },
         });
 
-        //star animations
+        //star movement
         this.stars.children.iterate(function (child) {
-            child.setBounceY(Phaser.Math.FloatBetween(0.4, 1.0));
+            child.x = Phaser.Math.Between(0, 600)
+            child.setBounceY(1);
             child.setCollideWorldBounds(true)
-            child.setVelocity(Phaser.Math.Between(-200, 200), 20);
+            child.setVelocity(Phaser.Math.Between(0, 400), 20);
+            console.log(`StarV: ${JSON.stringify(child.body.velocity)}`)
 
-        }, this);
+        });
 
-        const collectStar = (player, star) =>
-        {   
-            star.disableBody(true, true);
-            this.score += 100;
-            this.scoreText.setText('Score: ' + this.score);
-            this.pointsText = this.add.text(player.x, player.y, '100', { fontSize: '10px', fill: '#F6E300' });
+            //star collect
+            const collectStar = (player, star) => {
+                const self = this; // Store the outer 'this' context
+                console.log(star.velocity)
 
-            //if all stars collected, then respawn all stars
-            if (this.stars.countActive(true) === 0)
-            {
-                createBomb(this.bomb)
-                //respawn all stars
-                this.stars.children.iterate(function (child) {
-                    child.enableBody(true, child.x, 0, true, true);
-            });
+                createBomb(player, self.bomb);
+            
+                star.disableBody(true, true);
+                self.score += 100;
+                self.scoreText.setText('Score: ' + self.score);
+                self.pointsText = self.add.text(player.x, player.y, '100', { fontSize: '10px', fill: '#F6E300' });
+            
+                if (self.stars.countActive(true) === 0) {
+                    // Recreate stars if collected
+                    self.stars.children.iterate(function (child) {
+                        child.enableBody(true, Phaser.Math.Between(0, 600), 0, true, true);
+                    });
+                }
             }
-        } 
+            
+            // Initialize bombs group
+            this.bomb = this.physics.add.group();
+            
+            // Function to create bombs
+            const createBomb = (player, bombs) => {
+                const bombSpawnX = (player.x < 400) ? Phaser.Math.Between(400, 800) : Phaser.Math.Between(0, 400);
+                var bomb = bombs.create(bombSpawnX, 16, 'bomb');
+                bomb.setBounce(1);
+                bomb.setCollideWorldBounds(true);
+                bomb.setVelocity(Phaser.Math.Between(-200, 200), 20);
+                console.log(`Bomb V: ${JSON.stringify(bomb.body.velocity)}`)
 
-        //bombs---------------------        
-        const createBomb = (bombs) =>
-        {
-            const bombSpawnX = (this.player.x < 400) ? Phaser.Math.Between(400, 800) : Phaser.Math.Between(0, 400);
-            var bomb = bombs.create(bombSpawnX, 16, 'bomb');
-            bomb.setBounce(1);
-            bomb.setCollideWorldBounds(true);
-            bomb.setVelocity(Phaser.Math.Between(-200, 200), 20);
-        }
+            }
 
         const hitBomb = () => {
             this.player.setTint(0xff0000);
-            this.player.anims.play('turn');
+            this.player.anims.play('idle');
             this.gameOver = true;
         }
 
@@ -156,14 +162,11 @@ class GameScene extends Phaser.Scene {
         //collision---------------------
         this.physics.add.collider(this.player, this.platforms);
         this.physics.add.collider(this.stars, this.platforms);
-        
         this.physics.add.collider(this.bomb, this.platforms);
 
+        
         //player star collision
         this.physics.add.overlap(this.player, this.stars, collectStar, null, this);
-
-        //player bomb collision
-        this.physics.add.collider(this.player, this.bomb, playAgain, hitBomb, this);
     }
 
     update() 
@@ -191,12 +194,22 @@ class GameScene extends Phaser.Scene {
             this.player.setVelocityX(0);
             this.player.anims.play('idle', true);
         }
-
         if (this.cursors.up.isDown && this.player.body.touching.down)
         {
-            this.player.setVelocityY(this.playerJumpV);
+            this.player.setVelocityY(this.playerJumpV * -1);
             this.player.anims.play('jump', true)
         }
+
+
+        // this.stars.children.iterate(function (child) {
+
+        //     if (child.x === this.gameWidth)
+        //     {
+        //         console.log("HITTINg wall")
+        //         child.setVelocityX(-200)
+        //     }
+        // },this);
+          
 
         this.scoreText.x = this.cameras.main.worldView.x + 10;
         this.scoreText.y = this.cameras.main.worldView.y + 10; 

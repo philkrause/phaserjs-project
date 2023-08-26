@@ -42,11 +42,11 @@ class TitleScene extends Scene {
 
         // Play button
         const playButton = this.add.image(width * 0.5, height * 0.8, 'panel').setDisplaySize(150, 50);
-        const playText = this.add.text(playButton.x, playButton.y, 'Play', {font: '32px Press Start 2P' }).setOrigin(0.5)
+        const playText = this.add.text(playButton.x, playButton.y, 'Play', {fontSize: '32px' }).setOrigin(0.5)
 
 	    // About button
 	    const aboutButton = this.add.image(playButton.x, playButton.y + playButton.displayHeight + 10, 'panel').setDisplaySize(150, 50);
-        const aboutText = this.add.text(playButton.x, playButton.y + playButton.displayHeight + 10, 'About', {font: '32px Press Start 2P' }).setOrigin(0.5);
+        const aboutText = this.add.text(playButton.x, playButton.y + playButton.displayHeight + 10, 'About', {fontSize: '32px' }).setOrigin(0.5);
 
         //add buttons the allButtons
         this.allButtons.push(playButton,aboutButton);
