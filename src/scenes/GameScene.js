@@ -6,6 +6,7 @@ class GameScene extends Phaser.Scene {
         super({ key: 'GameSceneKey' });
         
         this.player;
+        this.laser;
         this.stars;
         this.starsAmount = 0;
         this.sparkle;
@@ -33,14 +34,15 @@ class GameScene extends Phaser.Scene {
         this.load.image('background', '../assets/images/preview.png');
         this.load.image('ground', '../assets/images/platform.png');
         this.load.image('star', '../assets/images/star.png');
-        this.load.image('abulance', '../assets/images/abulance.png');
-        this.load.spritesheet('sparkle', '../assets/images/mr_sparkle.png', { frameWidth: 100, frameHeight:183});
+        this.load.image('laser', '../assets/images/laser.png');
         this.load.spritesheet('cat_idle','../assets/images/cat_idle.png', { frameWidth: 50, frameHeight: 40 });
         this.load.spritesheet('cat_walk','../assets/images/cat_walk.png', { frameWidth: 50, frameHeight: 40 });
         this.load.spritesheet('cat_jump','../assets/images/cat_jump.png', { frameWidth: 50, frameHeight: 40 });
+        this.load.spritesheet('sparkle', '../assets/images/mr_sparkle.png', { frameWidth: 100, frameHeight:183});
         this.load.bitmapFont('carrier_command', '../assets/fonts/carrier_command.png', '../assets/fonts/carrier_command.xml');
         
         this.gameOver = false;
+        this.starsAmount = 0;
     }
     
     create() 
@@ -56,7 +58,7 @@ class GameScene extends Phaser.Scene {
         this.platforms.create(400, 300, 'ground').setScale(1).refreshBody();
 
         //player-----------------------
-        this.player = this.physics.add.sprite(50, 300, 'cat_idle');
+        this.player = this.physics.add.sprite(50, 300, 'cat_idle').setSize(20, 30).setOffset(10, 12) ;
         
         this.player.setBounce(0.2);
         this.player.setCollideWorldBounds(true);
@@ -90,34 +92,35 @@ class GameScene extends Phaser.Scene {
             repeat: -1
         });
 
+
         //score
         this.scoreText = this.add.bitmapText(16, 16, 'carrier_command', 'Score: 0').setTint(0xFFFF)
         
         //stars-----------------------------------
         this.stars = this.physics.add.group({
             key: 'star',
-            repeat: 0,
-            setXY: { x: 400, y: 0, stepX: 10 }
+            repeat: this.starsAmount,
+            setXY: { x: Phaser.Math.Between(0, this.gameWidth), y: 0, stepX: 10 }
         });
 
         //star movement
         this.stars.children.iterate(function (child) {
-            child.x = Phaser.Math.Between(0, 600)
-            child.setBounce(1)
-            child.setCollideWorldBounds(true,1,1)
+            child.x = Phaser.Math.Between(0, 600);
+            child.setBounce(1);
+            child.setCollideWorldBounds(true,1,1);
             child.setVelocity(Phaser.Math.Between(-200, 400), 20);
         });
 
         //star collect
         const collectStar = (player, star) => {
             if(!this.gameOver){
-                // Store the scene's 'this' context
+                this.starsAmount += 1
+                // Store the scene's context
                 const self = this; 
-                console.log(`SCORE: ${JSON.stringify(self.scoreText)}`)
+
                 createsparkle(player,this.sparkle)
                 star.disableBody(true, true);
                 self.score += self.points;   
-                console.log(`SCOREEDDD: ${JSON.stringify(self.score)}`)
 
                 self.scoreText.setText('Score: ' + self.score);
                 self.pointsText = self.add.text(player.x, player.y, '100', {
@@ -170,8 +173,8 @@ class GameScene extends Phaser.Scene {
         }
         //gameover
         const gameOver = () => {
-            this.gameOverText = this.add.bitmapText(190, 300,'carrier_command',`GAME OVER!`).setTint(0xff0000);
-            this.playAgainButton = this.add.bitmapText(80, 340,'carrier_command',`Click to play again`).setTint(0xff0000);
+            this.gameOverText = this.add.bitmapText(this.gameWidth * .5, this.gameHeight * .5 ,'carrier_command',`GAME OVER!`).setTint(0xff0000).setOrigin(.5);
+            this.playAgainButton = this.add.bitmapText(this.gameWidth * .5, this.gameHeight * .6, 'carrier_command',`Click to play again`).setTint(0xff0000).setOrigin(.5);
             this.tweens.add({
                 targets:[this.gameOverText],
                 x:10,
@@ -180,9 +183,10 @@ class GameScene extends Phaser.Scene {
                 repeatDelay: 1000,
                 ease: 'back.in'
             })
-            this.gameOverText.setInteractive().on('pointerdown', ()=> {
+            this.playAgainButton.setInteractive().on('pointerdown', ()=> {
                 this.scene.start('GameSceneKey');
             })
+            this.starsAmount = 0
         }
 
         //collision---------------------
@@ -228,13 +232,19 @@ class GameScene extends Phaser.Scene {
             this.player.setVelocityY(this.playerJumpV * -1);
             this.player.anims.play('jump', true)
         }
+
+        if (this.cursors.space.isDown()
+        {
+            this.laser = this.physics.add.sprite(50, 300, 'laser').setSize(20, 5);
+
+        }
         
         //sparkle animation
         this.sparkle.children.iterate(function(child){
             child.anims.play('sparkle',true)
         })
         
-        this.background.tilePositionY -= 2;
+        this.background.tilePositionY -= 2 + this.starsAmount;
         this.scoreText.x = this.cameras.main.worldView.x + 10;
         this.scoreText.y = this.cameras.main.worldView.y + 10; 
     }

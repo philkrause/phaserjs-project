@@ -42,15 +42,9 @@ class TitleScene extends Scene {
         //title image
         this.titleImage = this.add.image(width*.5,height*.5,'title').setDisplaySize(width,height)
         
-        this.titleText = this.add.bitmapText(width*.5, height*.5, 'carrier_command',`MR. SPARKLE`).setTint(0xfff0).setScale(1.3);
-        this.tweens.add({
-            targets:[this.titleText],
-            x:10,
-            duration: 1000,
-            repeat: -1,
-            repeatDelay: 1000,
-            ease: 'back.in'
-        })
+        this.titleText = this.add.bitmapText(width * .5, height * .25, 'carrier_command',`ATTACK OF`).setScale(1.2).setOrigin(.5);
+        this.titleTextT = this.add.bitmapText(width * .5, height * .35, 'carrier_command',`MR. SPARKLE`).setScale(1.2).setOrigin(.5);
+
         //cursor image
 		this.handCursor = this.add.image(0, 0, 'cursor')
 
@@ -68,7 +62,7 @@ class TitleScene extends Scene {
 
         //second camera for buttons 
         const UICam = this.cameras.add(0, 0, width, height);
-        this.cameras.main.ignore([this.allButtons, this.handCursor, playText, aboutText, this.titleText]);
+        this.cameras.main.ignore([this.allButtons, this.handCursor, playText, aboutText, this.titleText, this.titleTextT]);
         UICam.ignore(this.titleImage);
 
         // Initialize the selected button index
@@ -93,7 +87,6 @@ class TitleScene extends Scene {
             playButton.off('pointerdown');
             aboutButton.off('pointerdown');
         });
-
     }
 
     //tinting the button
