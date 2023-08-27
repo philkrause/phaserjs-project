@@ -1,5 +1,4 @@
 import { Scene } from 'phaser';
-import * as Config from '../config/config';
 
 class TitleScene extends Scene {
     constructor() {
@@ -8,11 +7,17 @@ class TitleScene extends Scene {
         this.startGameButton;
         this.cursors;
         this.allButtons = [];
+        this.allButtonText = [];
         this.selectedButtonIndex = 0;
         this.buttonSelect;
         this.handCursor;
         this.titleImage;
         this.titleD = 0;
+        this.playText;
+        this.infoText;
+        this.starAmount = 0;
+        this.currentButtonTween;
+        this.currentTextTween;
     }
 
     init()
@@ -26,6 +31,7 @@ class TitleScene extends Scene {
         this.load.image('title', '../assets/images/sparkle_pixel.png');
         this.load.image('panel', '../assets/images/glassPanel.png');
         this.load.image('cursor', '../assets/images/cursor_hand.png');
+        this.load.bitmapFont('carrier_command', '../assets/fonts/carrier_command.png', '../assets/fonts/carrier_command.xml');
     }
 
     create() 
@@ -33,27 +39,36 @@ class TitleScene extends Scene {
         const width = this.scale.width;
         const height = this.scale.height;
 
-
         //title image
         this.titleImage = this.add.image(width*.5,height*.5,'title').setDisplaySize(width,height)
-
+        
+        this.titleText = this.add.bitmapText(width*.5, height*.5, 'carrier_command',`MR. SPARKLE`).setTint(0xfff0).setScale(1.3);
+        this.tweens.add({
+            targets:[this.titleText],
+            x:10,
+            duration: 1000,
+            repeat: -1,
+            repeatDelay: 1000,
+            ease: 'back.in'
+        })
         //cursor image
 		this.handCursor = this.add.image(0, 0, 'cursor')
 
         // Play button
-        const playButton = this.add.image(width * 0.5, height * 0.8, 'panel').setDisplaySize(150, 50);
-        const playText = this.add.text(playButton.x, playButton.y, 'Play', {fontSize: '32px' }).setOrigin(0.5)
+        const playButton = this.add.image(width * 0.5, height * 0.7, 'panel').setDisplaySize(220, 100);
+        const playText = this.add.bitmapText(playButton.x, playButton.y,'carrier_command','Play').setOrigin(0.5)
 
 	    // About button
-	    const aboutButton = this.add.image(playButton.x, playButton.y + playButton.displayHeight + 10, 'panel').setDisplaySize(150, 50);
-        const aboutText = this.add.text(playButton.x, playButton.y + playButton.displayHeight + 10, 'About', {fontSize: '32px' }).setOrigin(0.5);
-
-        //add buttons the allButtons
+	    const aboutButton = this.add.image(playButton.x, playButton.y + playButton.displayHeight + 10, 'panel').setDisplaySize(220, 100);
+        const aboutText = this.add.bitmapText(playButton.x, playButton.y + playButton.displayHeight + 10,'carrier_command' ,'About').setOrigin(0.5);
+        
+        //add buttons and text to arrays we can use later
         this.allButtons.push(playButton,aboutButton);
+        this.allButtonText.push(playText,aboutText)
 
         //second camera for buttons 
         const UICam = this.cameras.add(0, 0, width, height);
-        this.cameras.main.ignore([this.allButtons, this.handCursor,playText,aboutText]);
+        this.cameras.main.ignore([this.allButtons, this.handCursor, playText, aboutText, this.titleText]);
         UICam.ignore(this.titleImage);
 
         // Initialize the selected button index
@@ -62,13 +77,15 @@ class TitleScene extends Scene {
 
         //event listeners for selecting 
         playButton.on('selected', () => {
-            console.log('play')
             this.allButtons = []
             this.scene.start('GameSceneKey')
         })
 
         aboutButton.on('selected', () => {
             console.log('about')
+            const infoText = this.add.bitmapText(width * .5, height * .5,'carrier_command','Made with Phaser 3 and Parcel 2 by philkrause').setOrigin(0.5).setScale(.4)
+            this.cameras.main.ignore([infoText]);
+
         })
 
         //clean up events
@@ -83,13 +100,26 @@ class TitleScene extends Scene {
 	selectButton(index)
 	{   
         const currentButton = this.allButtons[this.selectedButtonIndex]
+        const currentText = this.allButtonText[this.selectButtonIndex]
+        currentButton.clearTint();
 
         // set the current selected button to a white tint
         currentButton.setTint(0xffffff)
     
         const button = this.allButtons[index]
+        const text = this.allButtonText[index];
 
-        // set the newly selected button to a green tint
+        this.currentTextTween = this.tweens.add({
+            targets: [text],
+            duration: 1000,
+            scaleY: 1.2,
+            scaleX: 1.2,
+            ease: 'Cubic.easeInOut',
+            repeat: -1,
+            yoyo: true
+        });
+
+        //set the newly selected button to a green tint
         button.setTint(0x66ff7f)
     
         // move the hand cursor to the right edge
@@ -106,6 +136,11 @@ class TitleScene extends Scene {
         let index = this.selectedButtonIndex + change
         if (index >= this.allButtons.length){index = 0}
         else if (index < 0) { index = this.allButtons.length - 1 }
+        
+        if (this.currentTextTween) {
+            this.currentTextTween.stop();
+            this.currentTextTween = null;
+        }
 
         this.selectButton(index)
     }
@@ -114,8 +149,9 @@ class TitleScene extends Scene {
 	confirmSelection()
 	{
 		const button = this.allButtons[this.selectedButtonIndex]
+        const text = this.allButtonText[this.selectedButtonIndex]
         button.emit('selected')
-
+        text.emit('text')
 	}
 
     update() {

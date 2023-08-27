@@ -91,10 +91,7 @@ class GameScene extends Phaser.Scene {
         });
 
         //score
-        this.scoreText = this.add.bitmapText(16, 16, 'carrier_command', 'Score: 0', { 
-            fontSize: '50px', 
-            fill: '#F6E300'
-        });
+        this.scoreText = this.add.bitmapText(16, 16, 'carrier_command', 'Score: 0').setTint(0xFFFF)
         
         //stars-----------------------------------
         this.stars = this.physics.add.group({
@@ -114,10 +111,14 @@ class GameScene extends Phaser.Scene {
         //star collect
         const collectStar = (player, star) => {
             if(!this.gameOver){
-                const self = this; // Store the outer 'this' context
+                // Store the scene's 'this' context
+                const self = this; 
+                console.log(`SCORE: ${JSON.stringify(self.scoreText)}`)
                 createsparkle(player,this.sparkle)
                 star.disableBody(true, true);
-                self.score += self.points;
+                self.score += self.points;   
+                console.log(`SCOREEDDD: ${JSON.stringify(self.score)}`)
+
                 self.scoreText.setText('Score: ' + self.score);
                 self.pointsText = self.add.text(player.x, player.y, '100', {
                     fontSize: '50px',
@@ -165,24 +166,21 @@ class GameScene extends Phaser.Scene {
             this.player.anims.play('idle');
             this.player.setVelocityX(0);
             this.gameOver = true;
-            playAgain();
+            gameOver();
         }
         //gameover
-        const playAgain = () => {
-            this.playAgainButton = this.add.text(400, 300, `GAME OVER!\nClick to play again`, {
-                fontSize: '55px',
-                fill: '#FFB7FF',
-                fontFamily: 'fantasy',
-            });
+        const gameOver = () => {
+            this.gameOverText = this.add.bitmapText(190, 300,'carrier_command',`GAME OVER!`).setTint(0xff0000);
+            this.playAgainButton = this.add.bitmapText(80, 340,'carrier_command',`Click to play again`).setTint(0xff0000);
             this.tweens.add({
-                targets:[this.playAgainButton],
-                x:0,
+                targets:[this.gameOverText],
+                x:10,
                 duration: 1000,
                 repeat: -1,
-                repeatDelay: 500,
+                repeatDelay: 1000,
                 ease: 'back.in'
             })
-            this.playAgainButton.setInteractive().on('pointerdown', ()=> {
+            this.gameOverText.setInteractive().on('pointerdown', ()=> {
                 this.scene.start('GameSceneKey');
             })
         }
