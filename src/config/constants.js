@@ -3,4 +3,4 @@ export const GAME_HEIGHT = 600;
 export const PLAYER_JUMPV = 620;
 export const PLAYER_SPEED = 200;
 export const GRAVITY = 400;
-export const DEBUG_MODE = true;
+export const DEBUG_MODE = false;
