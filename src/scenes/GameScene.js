@@ -94,7 +94,8 @@ class GameScene extends Phaser.Scene {
         this.lasers = this.physics.add.group();
         this.createLaser = (player) => {
             const laser = this.lasers.create(player.x, player.y, 'laser')
-            laser.setVelocityX(1000 * Math.sign(this.player.body.velocity.x));
+            const laserSpeed = Math.sign(this.player.body.velocity.x)
+            laser.setVelocityX(laserSpeed);
         }
 
         //score
@@ -244,7 +245,6 @@ class GameScene extends Phaser.Scene {
         if (this.cursors.space.isDown && !this.laserFired) 
         {   
             this.createLaser(this.player, this.laser);
-            this.laserFired == true
         }
         
         if (this.cursors.space.isUp) {
