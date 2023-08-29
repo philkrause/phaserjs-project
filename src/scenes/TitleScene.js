@@ -28,7 +28,7 @@ class TitleScene extends Scene {
     preload() 
     {
         console.log("Preload Created");
-        this.load.image('title', '../assets/images/sparkle_pixel.png');
+        this.load.image('title', '../assets/images/title2.png');
         this.load.image('panel', '../assets/images/glassPanel.png');
         this.load.image('cursor', '../assets/images/cursor_hand.png');
         this.load.bitmapFont('carrier_command', '../assets/fonts/carrier_command.png', '../assets/fonts/carrier_command.xml');
@@ -40,30 +40,27 @@ class TitleScene extends Scene {
         const height = this.scale.height;
 
         //title image
-        this.titleImage = this.add.image(width*.5,height*.5,'title').setDisplaySize(width,height)
-        
-        this.titleText = this.add.bitmapText(width * .5, height * .25, 'carrier_command',`ATTACK OF`).setScale(1.2).setOrigin(.5);
-        this.titleTextT = this.add.bitmapText(width * .5, height * .35, 'carrier_command',`MR. SPARKLE`).setScale(1.2).setOrigin(.5);
+        this.titleImage = this.add.image(width*.5,height*.3,'title').setDisplaySize(width * .5,height * .5)
 
         //cursor image
 		this.handCursor = this.add.image(0, 0, 'cursor')
 
         // Play button
-        const playButton = this.add.image(width * 0.5, height * 0.7, 'panel').setDisplaySize(220, 100);
-        const playText = this.add.bitmapText(playButton.x, playButton.y,'carrier_command','Play').setOrigin(0.5)
+        const playButton = this.add.image(width * 0.5, height * 0.7, 'panel').setDisplaySize(16, 16).setScale(.2,.2);
+        const playText = this.add.bitmapText(playButton.x, playButton.y,'carrier_command','Play').setOrigin(0.5).setScale(.2,.2)
 
 	    // About button
-	    const aboutButton = this.add.image(playButton.x, playButton.y + playButton.displayHeight + 10, 'panel').setDisplaySize(220, 100);
-        const aboutText = this.add.bitmapText(playButton.x, playButton.y + playButton.displayHeight + 10,'carrier_command' ,'About').setOrigin(0.5);
+	    const aboutButton = this.add.image(playButton.x, playButton.y + playButton.displayHeight + 10, 'panel').setDisplaySize(220, 100).setScale(.2,.2);
+        const aboutText = this.add.bitmapText(playButton.x, playButton.y + playButton.displayHeight + 10,'carrier_command' ,'About').setOrigin(0.5).setScale(.2,.2);
         
         //add buttons and text to arrays we can use later
         this.allButtons.push(playButton,aboutButton);
         this.allButtonText.push(playText,aboutText)
 
         //second camera for buttons 
-        const UICam = this.cameras.add(0, 0, width, height);
-        this.cameras.main.ignore([this.allButtons, this.handCursor, playText, aboutText, this.titleText, this.titleTextT]);
-        UICam.ignore(this.titleImage);
+        // const UICam = this.cameras.add(0, 0, width, height);
+        // this.cameras.main.ignore([this.allButtons, this.handCursor, playText, aboutText, this.titleText, this.titleTextT]);
+        // UICam.ignore(this.titleImage);
 
         // Initialize the selected button index
         this.selectButtonIndex = 0
@@ -77,9 +74,7 @@ class TitleScene extends Scene {
 
         aboutButton.on('selected', () => {
             console.log('about')
-            const infoText = this.add.bitmapText(width * .5, height * .5,'carrier_command','Made with Phaser 3 and Parcel 2 by philkrause').setOrigin(0.5).setScale(.4)
-            this.cameras.main.ignore([infoText]);
-
+            this.add.bitmapText(width * .5, height * .5,'carrier_command','Made with Phaser 3 and Parcel 2 by philkrause').setOrigin(0.5).setScale(.1)
         })
 
         //clean up events
@@ -101,16 +96,6 @@ class TitleScene extends Scene {
     
         const button = this.allButtons[index]
         const text = this.allButtonText[index];
-
-        this.currentTextTween = this.tweens.add({
-            targets: [text],
-            duration: 1000,
-            scaleY: 1.2,
-            scaleX: 1.2,
-            ease: 'Cubic.easeInOut',
-            repeat: -1,
-            yoyo: true
-        });
 
         //set the newly selected button to a green tint
         button.setTint(0x66ff7f)
@@ -150,8 +135,8 @@ class TitleScene extends Scene {
     update() {
 
         //title Screen Camera
-        this.cameras.main.rotation += 0.01;
-        this.cameras.main.setZoom(Math.abs(Math.sin(this.cameras.main.rotation)) * 0.5 + 1);
+        // this.cameras.main.rotation += 0.01;
+        // this.cameras.main.setZoom(Math.abs(Math.sin(this.cameras.main.rotation)) * 0.5 + 1);
         //key inputs
         const upJustPressed = Phaser.Input.Keyboard.JustDown(this.cursors.up)
 		const downJustPressed = Phaser.Input.Keyboard.JustDown(this.cursors.down)

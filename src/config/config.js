@@ -7,10 +7,12 @@ var startSceneConfig = {
     width: GAME_WIDTH,
     height: GAME_HEIGHT,
     scene: [TitleScene,GameScene],
+    pixelArt: true,
+    zoom: 5,
     physics: {
         default: 'arcade',
         arcade: {
-            gravity: { y: GRAVITY },
+            gravity: { y: 0 },
             debug: DEBUG_MODE
         }
     }

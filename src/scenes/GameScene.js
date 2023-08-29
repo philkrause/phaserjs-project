@@ -6,8 +6,10 @@ class GameScene extends Phaser.Scene {
         super({ key: 'GameSceneKey' });
         
         this.player;
+        this.traffic;
         this.laser;
         this.createLaser;
+        this.spawnCloud;
         this.fired = false;
         this.stars;
         this.sparkle;
@@ -32,10 +34,14 @@ class GameScene extends Phaser.Scene {
 
     preload() 
     {
-        this.load.image('background', '../assets/images/preview.png');
+        this.load.image('background', '../assets/images/summer.png');
+        this.load.image('summerRoad', '../assets/images/summer_road.png');
         this.load.image('ground', '../assets/images/platform.png');
         this.load.image('star', '../assets/images/star.png');
         this.load.image('laser', '../assets/images/laser.png');
+        this.load.image('player', '../assets/images/player_y.png');
+        this.load.image('cloud', '../assets/images/cloud.png');
+
         this.load.spritesheet('cat_idle','../assets/images/cat_idle.png', { frameWidth: 50, frameHeight: 40 });
         this.load.spritesheet('cat_walk','../assets/images/cat_walk.png', { frameWidth: 50, frameHeight: 40 });
         this.load.spritesheet('cat_jump','../assets/images/cat_jump.png', { frameWidth: 50, frameHeight: 40 });
@@ -48,46 +54,46 @@ class GameScene extends Phaser.Scene {
     
     create() 
     {   
+
         //background-----------------------------------------
         const width = this.scale.width;
         const height = this.scale.height;
-        this.background = this.add.tileSprite(0, 0, width, height, 'background').setOrigin(0);
+        this.background = this.add.tileSprite(0, 0, this.gameWidth*2, this.gameHeight*5, 'background').setOrigin(.5);
 
         //platforms-----------------------------------------
-        this.platforms = this.physics.add.staticGroup();
-        this.platforms.create(400, 568, 'ground').setScale(2).refreshBody();
-        this.platforms.create(400, 300, 'ground').setScale(1).refreshBody();
+        //this.platforms = this.physics.add.staticGroup()
+        //this.platforms.create(400, 568, 'ground').setScale(2).refreshBody();
+        //this.platforms.create(400, 300, 'ground').setScale(1).refreshBody();
 
         //player-----------------------------------------
-        this.player = this.physics.add.sprite(50, 300, 'cat_idle').setSize(20, 30).setOffset(10, 12)
-        this.player.setBounce(0.2);
+        this.player = this.physics.add.sprite(width * .5, height, 'player').setSize(16,16)
+        //this.player.setBounce(0.2);
         this.player.setCollideWorldBounds(true);
 
         //player animations
-        this.anims.create({
-            key:'left',
-            frames:this.anims.generateFrameNumbers('cat_walk', { start: 0, end: 3 }),
-            frameRate: 10,
-            repeat: -1
-        });
+        // this.anims.create({
+        //     key:'left',
+        //     frames:this.anims.generateFrameNumbers('cat_walk', { start: 0, end: 3 }),
+        //     frameRate: 10,
+        //     repeat: -1
+        // });
     
-        this.anims.create({
-            key: 'idle',
-            frames: this.anims.generateFrameNumbers('cat_idle', {start: 0, end: 2  }),
-            frameRate: 10,
-            repeat: -1
-        });
+        // this.anims.create({
+        //     key: 'idle',
+        //     frames: this.anims.generateFrameNumbers('cat_idle', {start: 0, end: 2  }),
+        //     frameRate: 10,
+        //     repeat: -1
+        // });
     
-        this.anims.create({
-            key: 'right',
-            frames: this.anims.generateFrameNumbers('cat_walk', { start: 0, end: 3 }),
-            frameRate: 10,
-            repeat: -1
-        });
+        // this.anims.create({
+        //     key: 'right',
+        //     frames: this.anims.generateFrameNumbers('cat_walk', { start: 0, end: 3 }),
+        //     frameRate: 10,
+        //     repeat: -1
+        // });
 
         //camera-----------------------------------------
         // this.cameras.main.startFollow(this.player)
-        // .setZoom(1.2)
         // .setName('main')
 
         //laser------------------------------------------
@@ -104,22 +110,22 @@ class GameScene extends Phaser.Scene {
         }
 
         //score
-        this.scoreText = this.add.bitmapText(16, 16, 'carrier_command', 'Score: 0').setTint(0xFFFF)
+        this.scoreText = this.add.bitmapText(16, 16, 'carrier_command', 'Score: 0').setTint(0xFFFF).setScale(.25)
         
         //stars-----------------------------------------
-        this.stars = this.physics.add.group({
-            key: 'star',
-            repeat: 0,
-            setXY: { x: Phaser.Math.Between(0, this.gameWidth), y: 0, stepX: 10 }
-        });
+        // this.stars = this.physics.add.group({
+        //     key: 'star',
+        //     repeat: 0,
+        //     setXY: { x: Phaser.Math.Between(0, this.gameWidth), y: 0, stepX: 10 }
+        // });
 
         //star movement
-        this.stars.children.iterate(function (child) {
-            child.x = Phaser.Math.Between(0, 600);
-            child.setBounce(1)
-            child.setCollideWorldBounds(true,1,1);
-            child.setVelocity(Phaser.Math.Between(-200, 400), 20);
-        });
+        // this.stars.children.iterate(function (child) {
+        //     child.x = Phaser.Math.Between(0, 600);
+        //     child.setBounce(1)
+        //     child.setCollideWorldBounds(true,1,1);
+        //     child.setVelocity(Phaser.Math.Between(-200, 400), 20);
+        // });
 
         //star collect
         const collectStar = (player, star) => {
@@ -215,30 +221,39 @@ class GameScene extends Phaser.Scene {
         }
 
         //collision-----------------------------------------
-        this.physics.add.collider(this.player, this.platforms);
-        this.physics.add.collider(this.stars, this.platforms,null,null,this);
-        this.physics.add.collider(this.sparkle, this.platforms,);
+        // this.physics.add.collider(this.player, this.platforms);
+        // this.physics.add.collider(this.stars, this.platforms,null,null,this);
+        // this.physics.add.collider(this.sparkle, this.platforms,);
  
         //this.physics.add.collider(this.laser, this.platforms,);
         
 
         //player star collision
-        this.physics.add.overlap(this.player, this.stars, collectStar, null, this);
+        //this.physics.add.overlap(this.player, this.stars, collectStar, null, this);
         
         //player hit
-        this.physics.add.overlap(this.player, this.sparkle, playerHit)
+        //this.physics.add.overlap(this.player, this.sparkle, playerHit)
 
         //enemy hit
         if(this.laser)
         {
         this.physics.add.overlap(this.laser, this.sparkle, enemyHit)
         }
+
+        //cloud
+
+        this.spawnCloud = () => {
+        this.cloud = this.physics.add.sprite(Phaser.Math.Between(0,this.gameWidth), this.gameHeight, 'cloud')
+        this.time.events.repeat(Phaser.Timer.SECOND * 2, 10, this.spawnCloud, this);
+
+    }
         
 
     }
 
     update() 
     {   
+
         //remove controls if game over
         if (this.gameOver == true)
         {
@@ -249,36 +264,27 @@ class GameScene extends Phaser.Scene {
         //player movement-----------------------------------------
         if (this.cursors.left.isDown)
         {
-            this.player.setVelocityX(-120);
-            this.player.setFlipX(true)
-            this.player.anims.play('left', true);
+            this.player.setVelocityX(Config.PLAYER_SPEED * -1);
         }
         else if (this.cursors.right.isDown)
         {
-            this.player.setVelocityX(120);
-            this.player.setFlipX(false)
-            this.player.anims.play('right', true);
+            this.player.setVelocityX(Config.PLAYER_SPEED);
+        }
+  
+        else if (this.cursors.up.isDown)
+        {
+            this.player.setVelocityY(Config.PLAYER_SPEED * -1);
+        }
+
+        //laser controls-----------------------------------------
+        else if (this.cursors.down.isDown) 
+        {   
+            this.player.setVelocityY(Config.PLAYER_SPEED )
         }
         else
         {
             this.player.setVelocityX(0);
-            this.player.anims.play('idle', true);
-        }
-        if (this.cursors.up.isDown && this.player.body.touching.down)
-        {
-            this.player.setVelocityY(this.playerJumpV * -1);
-            this.player.anims.play('jump', true)
-        }
-
-        //laser controls-----------------------------------------
-        if (this.cursors.space.isDown && !this.fired) 
-        {   
-            this.createLaser(this.player, this.laser);
-            this.fired = true
-        }
-        
-        if (this.cursors.space.isUp) {
-            this.fired=false;
+            this.player.setVelocityY(0);
         }
 
         //sparkle animation-----------------------------------------
@@ -286,7 +292,7 @@ class GameScene extends Phaser.Scene {
             child.anims.play('sparkle',true)
         })
         
-        this.background.tilePositionY -= 2 + this.starsAmount;
+        this.background.tilePositionY -= 3;
         this.scoreText.x = this.cameras.main.worldView.x + 10;
         this.scoreText.y = this.cameras.main.worldView.y + 10; 
     }
