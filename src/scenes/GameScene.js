@@ -8,7 +8,7 @@ class GameScene extends Phaser.Scene {
         this.player;
         this.laser;
         this.createLaser;
-        this.laserFired = false;
+        this.fired = false;
         this.stars;
         this.sparkle;
         this.platforms;
@@ -93,9 +93,14 @@ class GameScene extends Phaser.Scene {
         //laser------------------------------------------
         this.lasers = this.physics.add.group();
         this.createLaser = (player) => {
-            const laser = this.lasers.create(player.x, player.y, 'laser')
+            const laser = this.lasers.create(player.x, player.y, 'cat_idle')
             const laserSpeed = Math.sign(this.player.body.velocity.x)
-            laser.setVelocityX(laserSpeed);
+            laser.setCollideWorldBounds(true,1,1)
+            laser.setVelocityX(200);
+            if (laser.x == 0 || laser.x > 600) 
+            {
+                laser.disableBody(true,true)
+            }
         }
 
         //score
@@ -104,14 +109,14 @@ class GameScene extends Phaser.Scene {
         //stars-----------------------------------------
         this.stars = this.physics.add.group({
             key: 'star',
-            repeat: 100,
+            repeat: 0,
             setXY: { x: Phaser.Math.Between(0, this.gameWidth), y: 0, stepX: 10 }
         });
 
         //star movement
         this.stars.children.iterate(function (child) {
             child.x = Phaser.Math.Between(0, 600);
-            child.setBounce(1);
+            child.setBounce(1)
             child.setCollideWorldBounds(true,1,1);
             child.setVelocity(Phaser.Math.Between(-200, 400), 20);
         });
@@ -134,7 +139,7 @@ class GameScene extends Phaser.Scene {
                 });
                 this.tweens.add({
                     targets: self.pointsText,
-                    setVelocityY: -60,
+                    y: -60,
                     alpha: 0,
                     duration: 2000
                 });
@@ -178,6 +183,19 @@ class GameScene extends Phaser.Scene {
             this.gameOver = true;
             gameOver();
         }
+
+        //sparkle death
+        const enemyHit = (laser,sparkle) => {
+            console.log(laser)
+            laser.disableBody(true,true)
+            sparkle.disableBody(true,true)
+            // this.stars = this.physics.add.group({
+            //     key: 'star',
+            //     repeat: 10,
+            //     setXY: { x: Phaser.Math.Between(0, this.gameWidth), y: 0, stepX: 10 }
+            // });
+        }
+
         //gameover text and replay button
         const gameOver = () => {
             this.gameOverText = this.add.bitmapText(this.gameWidth * .5, this.gameHeight * .5 ,'carrier_command',`GAME OVER!`).setTint(0xff0000).setOrigin(.5);
@@ -200,12 +218,23 @@ class GameScene extends Phaser.Scene {
         this.physics.add.collider(this.player, this.platforms);
         this.physics.add.collider(this.stars, this.platforms,null,null,this);
         this.physics.add.collider(this.sparkle, this.platforms,);
+ 
+        //this.physics.add.collider(this.laser, this.platforms,);
+        
 
         //player star collision
         this.physics.add.overlap(this.player, this.stars, collectStar, null, this);
         
         //player hit
         this.physics.add.overlap(this.player, this.sparkle, playerHit)
+
+        //enemy hit
+        if(this.laser)
+        {
+        this.physics.add.overlap(this.laser, this.sparkle, enemyHit)
+        }
+        
+
     }
 
     update() 
@@ -242,13 +271,14 @@ class GameScene extends Phaser.Scene {
         }
 
         //laser controls-----------------------------------------
-        if (this.cursors.space.isDown && !this.laserFired) 
+        if (this.cursors.space.isDown && !this.fired) 
         {   
             this.createLaser(this.player, this.laser);
+            this.fired = true
         }
         
         if (this.cursors.space.isUp) {
-            this.laserFired=false;
+            this.fired=false;
         }
 
         //sparkle animation-----------------------------------------
