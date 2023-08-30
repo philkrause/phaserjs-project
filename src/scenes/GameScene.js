@@ -6,7 +6,9 @@ class GameScene extends Phaser.Scene {
         super({ key: 'GameSceneKey' });
         
         this.player;
+        this.redCar;
         this.traffic;
+        this.widthText;
         this.laser;
         this.createLaser;
         this.spawnCloud;
@@ -25,6 +27,8 @@ class GameScene extends Phaser.Scene {
         this.playerSpeed = Config.PLAYER_SPEED;
         this.gameWidth = Config.GAME_WIDTH;
         this.gameHeight = Config.GAME_HEIGHT
+        this.width;
+        this.height;
     }
     
     init()
@@ -34,12 +38,12 @@ class GameScene extends Phaser.Scene {
 
     preload() 
     {
-        this.load.image('background', '../assets/images/summer.png');
-        this.load.image('summerRoad', '../assets/images/summer_road.png');
+        this.load.image('background', '../assets/images/city_top2.png');
         this.load.image('ground', '../assets/images/platform.png');
         this.load.image('star', '../assets/images/star.png');
         this.load.image('laser', '../assets/images/laser.png');
         this.load.image('player', '../assets/images/player_y.png');
+        this.load.image('red_car', '../assets/images/red_car1.png');
         this.load.image('cloud', '../assets/images/cloud.png');
 
         this.load.spritesheet('cat_idle','../assets/images/cat_idle.png', { frameWidth: 50, frameHeight: 40 });
@@ -54,21 +58,69 @@ class GameScene extends Phaser.Scene {
     
     create() 
     {   
-
         //background-----------------------------------------
-        const width = this.scale.width;
-        const height = this.scale.height;
-        this.background = this.add.tileSprite(0, 0, this.gameWidth*2, this.gameHeight*5, 'background').setOrigin(.5);
+        this.width = this.scale.width;
+        this.height = this.scale.height;
 
+         //lighting------------------------------------------
+         this.lights.enable().setAmbientColor(0x111111);
+         console.log(this.lights.getMaxVisibleLights());
+ 
+         this.background = this.add.tileSprite(100, 100, this.gameWidth * 2.5, this.gameHeight * 2.5, 'background')
+             .setPipeline("Light2D")
+             .setScale(.5)
+     
+ 
         //platforms-----------------------------------------
         //this.platforms = this.physics.add.staticGroup()
         //this.platforms.create(400, 568, 'ground').setScale(2).refreshBody();
         //this.platforms.create(400, 300, 'ground').setScale(1).refreshBody();
 
         //player-----------------------------------------
-        this.player = this.physics.add.sprite(width * .5, height, 'player').setSize(16,16)
+        this.player = this.physics.add.sprite(this.width * .5, this.height, 'player').setSize(16, 16).setPipeline("Light2D");
+        this.playerLight = this.lights.addLight(this.player.x, this.player.y, 300);
+        this.tweens.add({
+          targets: [this.playerLight],
+          intensity: {
+            value: 1.0,
+            duration: 500,
+            ease: "Elastic.easeInOut",
+            repeat: -1,
+            yoyo: true
+          }
+        });
+
         //this.player.setBounce(0.2);
         this.player.setCollideWorldBounds(true);
+
+
+                //Traffic
+        this.spawnCar = () => { 
+            console.log("Spawning Car")
+            this.car = this.physics.add.sprite(Phaser.Math.Between(0,this.gameWidth), 0, 'red_car')
+            this.car.setVelocityY(30)
+            this.car.setSize(16,16)
+            this.carLight = this.lights.addLight(this.car.x, this.car.y, 300);
+            this.tweens.add({
+                targets: [this.car],
+                intensity: {
+                  value: 1.0,
+                  duration: 500,
+                  ease: "Elastic.easeInOut",
+                  repeat: -1,
+                  yoyo: true
+                }
+              });
+        };
+                
+                // Create a timer event to spawn cars every 2 seconds, 10 times
+        // const spawnCarEvent = this.time.addEvent({
+        //     delay: 2000,
+        //     repeat: 9, // This will execute the callback 10 times (0 to 9)
+        //     callbackScope: this // Maintain the scope of 'this' inside the callback
+        // });
+
+        this.spawnCar()
 
         //player animations
         // this.anims.create({
@@ -78,20 +130,6 @@ class GameScene extends Phaser.Scene {
         //     repeat: -1
         // });
     
-        // this.anims.create({
-        //     key: 'idle',
-        //     frames: this.anims.generateFrameNumbers('cat_idle', {start: 0, end: 2  }),
-        //     frameRate: 10,
-        //     repeat: -1
-        // });
-    
-        // this.anims.create({
-        //     key: 'right',
-        //     frames: this.anims.generateFrameNumbers('cat_walk', { start: 0, end: 3 }),
-        //     frameRate: 10,
-        //     repeat: -1
-        // });
-
         //camera-----------------------------------------
         // this.cameras.main.startFollow(this.player)
         // .setName('main')
@@ -108,13 +146,15 @@ class GameScene extends Phaser.Scene {
                 laser.disableBody(true,true)
             }
         }
-
+        //console.log(this.width)
         //score
-        this.scoreText = this.add.bitmapText(16, 16, 'carrier_command', 'Score: 0').setTint(0xFFFF).setScale(.25)
-        
+        this.scoreText = this.add.bitmapText(15, 15, 'carrier_command', 'Score: 0').setTint(0xFFFF).setScale(.25)
+        this.widthText= this.add.bitmapText(15, 35,'carrier_command',`Width: ${this.width}`).setScale(.2,.2).setTint(0xFFFF).setScale(.25)
+        this.heightText = this.add.bitmapText(15, 45, 'carrier_command', `Height: ${this.height}`).setTint(0xFFFF).setScale(.25)
+
         //stars-----------------------------------------
         // this.stars = this.physics.add.group({
-        //     key: 'star',
+        //     key: 'red_car',
         //     repeat: 0,
         //     setXY: { x: Phaser.Math.Between(0, this.gameWidth), y: 0, stepX: 10 }
         // });
@@ -128,37 +168,37 @@ class GameScene extends Phaser.Scene {
         // });
 
         //star collect
-        const collectStar = (player, star) => {
-            if(!this.gameOver){
-               // Store the scene's context
-                const self = this; 
+        // const collectStar = (player, star) => {
+        //     if(!this.gameOver){
+        //        // Store the scene's context
+        //         const self = this; 
 
-                //create enemy
-                createsparkle(player,this.sparkle)
-                star.disableBody(true, true);
-                self.score += self.points;   
-                //update score and draw points with fade out animation
-                self.scoreText.setText('Score: ' + self.score);
-                self.pointsText = self.add.text(player.x, player.y, '100', {
-                    fontSize: '50px',
-                    fill: '#F6E300'
-                });
-                this.tweens.add({
-                    targets: self.pointsText,
-                    y: -60,
-                    alpha: 0,
-                    duration: 2000
-                });
+        //         //create enemy
+        //         createsparkle(player,this.sparkle)
+        //         star.disableBody(true, true);
+        //         self.score += self.points;   
+        //         //update score and draw points with fade out animation
+        //         self.scoreText.setText('Score: ' + self.score);
+        //         self.pointsText = self.add.text(player.x, player.y, '100', {
+        //             fontSize: '50px',
+        //             fill: '#F6E300'
+        //         });
+        //         this.tweens.add({
+        //             targets: self.pointsText,
+        //             y: -60,
+        //             alpha: 0,
+        //             duration: 2000
+        //         });
                 
-                // Recreate star if collected
-                if (self.stars.countActive(true) === 0) {
-                    self.stars.children.iterate(function (child) {
-                        child.enableBody(true, Phaser.Math.Between(0, 600), 0, true, true);
-                        child.setVelocity(Phaser.Math.Between(-200, 400), 20);
-                    });
-                }
-            }
-        }
+        //         // Recreate star if collected
+        //         if (self.stars.countActive(true) === 0) {
+        //             self.stars.children.iterate(function (child) {
+        //                 child.enableBody(true, Phaser.Math.Between(0, 600), 0, true, true);
+        //                 child.setVelocity(Phaser.Math.Between(-200, 400), 20);
+        //             });
+        //         }
+        //     }
+        // }
         
         
         //MR SPARKLE-----------------------------------------
@@ -168,7 +208,25 @@ class GameScene extends Phaser.Scene {
             const sparkleSpawnX = (player.x < 400) ? Phaser.Math.Between(400, 800) : Phaser.Math.Between(0, 400);
             var sparkle = sparkles.create(sparkleSpawnX, 16, 'sparkle');
             sparkle.setBounce(1);
-            sparkle.setScale(.5)
+            sparkle.setScale(.5)    this.spawnCar = (carSprite) => { 
+                console.log("Spawning Car")
+                var car = carSprite.create(Phaser.Math.Between(0,this.gameWidth), this.gameHeight, 'car');
+                car.setBounce(1);
+                car.setScale(.5)
+                car.setCollideWorldBounds(true);
+                car.setVelocity(0, Phaser.Math.Between(-200, 200));
+                this.carLight = this.lights.addLight(this.car.x, this.car.y, 300);
+                this.tweens.add({
+                    targets: [this.car],
+                    intensity: {
+                        value: 1.0,
+                        duration: 500,
+                        ease: "Elastic.easeInOut",
+                        repeat: -1,
+                        yoyo: true
+                    }
+                    });
+            };
             sparkle.setCollideWorldBounds(true);
             sparkle.setVelocity(Phaser.Math.Between(-200, 200), 20);
         }
@@ -240,19 +298,16 @@ class GameScene extends Phaser.Scene {
         this.physics.add.overlap(this.laser, this.sparkle, enemyHit)
         }
 
-        //cloud
-
-        this.spawnCloud = () => {
-        this.cloud = this.physics.add.sprite(Phaser.Math.Between(0,this.gameWidth), this.gameHeight, 'cloud')
-        this.time.events.repeat(Phaser.Timer.SECOND * 2, 10, this.spawnCloud, this);
-
-    }
-        
 
     }
 
     update() 
     {   
+
+        this.playerLight.x = this.player.x;
+        this.playerLight.y = this.player.y;
+        this.carLight.x = this.car.x;
+        this.carLight.y = this.car.y;
 
         //remove controls if game over
         if (this.gameOver == true)
@@ -291,10 +346,8 @@ class GameScene extends Phaser.Scene {
         this.sparkle.children.iterate(function(child){
             child.anims.play('sparkle',true)
         })
-        
-        this.background.tilePositionY -= 3;
-        this.scoreText.x = this.cameras.main.worldView.x + 10;
-        this.scoreText.y = this.cameras.main.worldView.y + 10; 
+        this.spawnCloud
+        this.background.tilePositionY -= 3.9;
     }
 }
 

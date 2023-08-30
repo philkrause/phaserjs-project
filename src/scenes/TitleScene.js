@@ -43,14 +43,14 @@ class TitleScene extends Scene {
         this.titleImage = this.add.image(width*.5,height*.3,'title').setDisplaySize(width * .5,height * .5)
 
         //cursor image
-		this.handCursor = this.add.image(0, 0, 'cursor')
+		this.handCursor = this.add.image(0, 0, 'cursor').setScale(.5)
 
         // Play button
-        const playButton = this.add.image(width * 0.5, height * 0.7, 'panel').setDisplaySize(16, 16).setScale(.2,.2);
+        const playButton = this.add.image(width * 0.5, height * 0.7, 'panel').setDisplaySize(32, 32).setScale(.45,.25);
         const playText = this.add.bitmapText(playButton.x, playButton.y,'carrier_command','Play').setOrigin(0.5).setScale(.2,.2)
 
 	    // About button
-	    const aboutButton = this.add.image(playButton.x, playButton.y + playButton.displayHeight + 10, 'panel').setDisplaySize(220, 100).setScale(.2,.2);
+	    const aboutButton = this.add.image(playButton.x, playButton.y + playButton.displayHeight + 10, 'panel').setDisplaySize(220, 100).setScale(.45,.2);
         const aboutText = this.add.bitmapText(playButton.x, playButton.y + playButton.displayHeight + 10,'carrier_command' ,'About').setOrigin(0.5).setScale(.2,.2);
         
         //add buttons and text to arrays we can use later
@@ -73,7 +73,6 @@ class TitleScene extends Scene {
         })
 
         aboutButton.on('selected', () => {
-            console.log('about')
             this.add.bitmapText(width * .5, height * .5,'carrier_command','Made with Phaser 3 and Parcel 2 by philkrause').setOrigin(0.5).setScale(.1)
         })
 
@@ -82,6 +81,11 @@ class TitleScene extends Scene {
             playButton.off('pointerdown');
             aboutButton.off('pointerdown');
         });
+    }
+
+    lightUp(obj)
+    {
+        
     }
 
     //tinting the button
