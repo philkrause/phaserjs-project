@@ -202,41 +202,41 @@ class GameScene extends Phaser.Scene {
         
         
         //MR SPARKLE-----------------------------------------
-        this.sparkle = this.physics.add.group();
+        // this.sparkle = this.physics.add.group();
 
-         const createsparkle = (player, sparkles) => {
-            const sparkleSpawnX = (player.x < 400) ? Phaser.Math.Between(400, 800) : Phaser.Math.Between(0, 400);
-            var sparkle = sparkles.create(sparkleSpawnX, 16, 'sparkle');
-            sparkle.setBounce(1);
-            sparkle.setScale(.5)    this.spawnCar = (carSprite) => { 
-                console.log("Spawning Car")
-                var car = carSprite.create(Phaser.Math.Between(0,this.gameWidth), this.gameHeight, 'car');
-                car.setBounce(1);
-                car.setScale(.5)
-                car.setCollideWorldBounds(true);
-                car.setVelocity(0, Phaser.Math.Between(-200, 200));
-                this.carLight = this.lights.addLight(this.car.x, this.car.y, 300);
-                this.tweens.add({
-                    targets: [this.car],
-                    intensity: {
-                        value: 1.0,
-                        duration: 500,
-                        ease: "Elastic.easeInOut",
-                        repeat: -1,
-                        yoyo: true
-                    }
-                    });
-            };
-            sparkle.setCollideWorldBounds(true);
-            sparkle.setVelocity(Phaser.Math.Between(-200, 200), 20);
-        }
+        //  const createsparkle = (player, sparkles) => {
+        //     const sparkleSpawnX = (player.x < 400) ? Phaser.Math.Between(400, 800) : Phaser.Math.Between(0, 400);
+        //     var sparkle = sparkles.create(sparkleSpawnX, 16, 'sparkle');
+        //     sparkle.setBounce(1);
+        //     sparkle.setScale(.5)    this.spawnCar = (carSprite) => { 
+        //         console.log("Spawning Car")
+        //         var car = carSprite.create(Phaser.Math.Between(0,this.gameWidth), this.gameHeight, 'car');
+        //         car.setBounce(1);
+        //         car.setScale(.5)
+        //         car.setCollideWorldBounds(true);
+        //         car.setVelocity(0, Phaser.Math.Between(-200, 200));
+        //         this.carLight = this.lights.addLight(this.car.x, this.car.y, 300);
+        //         this.tweens.add({
+        //             targets: [this.car],
+        //             intensity: {
+        //                 value: 1.0,
+        //                 duration: 500,
+        //                 ease: "Elastic.easeInOut",
+        //                 repeat: -1,
+        //                 yoyo: true
+        //             }
+        //             });
+        //     };
+        //     sparkle.setCollideWorldBounds(true);
+        //     sparkle.setVelocity(Phaser.Math.Between(-200, 200), 20);
+        // }
 
-        this.anims.create({
-            key: 'sparkle',
-            frames: this.anims.generateFrameNumbers('sparkle', { start: 0, end: 1 }),
-            frameRate: 10,
-            repeat: -1
-        });
+        // this.anims.create({
+        //     key: 'sparkle',
+        //     frames: this.anims.generateFrameNumbers('sparkle', { start: 0, end: 1 }),
+        //     frameRate: 10,
+        //     repeat: -1
+        // });
 
         
         //player death
@@ -343,9 +343,9 @@ class GameScene extends Phaser.Scene {
         }
 
         //sparkle animation-----------------------------------------
-        this.sparkle.children.iterate(function(child){
-            child.anims.play('sparkle',true)
-        })
+        // this.sparkle.children.iterate(function(child){
+        //     child.anims.play('sparkle',true)
+        // })
         this.spawnCloud
         this.background.tilePositionY -= 3.9;
     }
